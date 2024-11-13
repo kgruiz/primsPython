@@ -1,5 +1,6 @@
 import random
 import string
+from queue import Queue
 from typing import List, Set, Tuple, Union
 
 import pandas as pd
@@ -22,15 +23,17 @@ class Vertex:
 
         self.label: int | str = label
         self.found: bool = False
-        self.edges: Set[Vertex] = edges
+
+        if edges is None:
+
+            self.edges: Set[Vertex] = set()
+
+        else:
+            self.edges: Set[Vertex] = edges
         self.minDistance: float = float("infinity")
         self.previous: Vertex | None = None
 
     def AddEdge(self, edge: Tuple["Vertex", float]) -> None:
-
-        if self.edges is None:
-
-            self.edges = set()
 
         self.edges.add(edge)
 
@@ -194,35 +197,38 @@ def PrimsAlgorithm(
 
 if __name__ == "__main__":
 
-    numVertices = 5
+    numVertices = 10
+
+    filledPercent = 0.8
 
     labels = GetAlphabet(numVertices)
 
     vertices = [Vertex(label) for label in labels[:numVertices]]
 
-    for vertexNum in range(len(vertices)):
+    weightsList = [
+        float(int(random.random() * random.randint(1, 1000) * 100) / 100)
+        for _ in range(int((numVertices**2) * filledPercent))
+    ]
 
-        numedges = random.randint(1, 3)
+    weights = Queue()
 
-        destinations = set()
+    for item in weightsList:
 
-        while len(destinations) < numedges:
+        weights.put(item)
+
+    while not weights.empty():
+
+        source = random.choice(vertices)
+
+        destination = random.choice(vertices)
+
+        while source == destination:
 
             destination = random.choice(vertices)
 
-            if destination.label == vertices[vertexNum].label:
+        weight = weights.get()
 
-                continue
-
-            else:
-
-                destinations.add(destination)
-
-        for destination in destinations:
-
-            weight = float(int(random.random() * random.randint(1, 1000) * 100) / 100)
-
-            vertices[vertexNum].AddEdge((destination, weight))
+        vertices[vertices.index(source)].AddEdge((destination, weight))
 
     adjacencyMatrix = AdjacencyMatrix(vertices)
 
