@@ -1,0 +1,45 @@
+# Python compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Python package files
+*.egg
+*.egg-info/
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+.history/
+
+# macOS metadata files
+.DS_Store
+
+# Python bytecode
+*.pyc
+
+# pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# Other
+*.log
+*.sqlite3
+*.db
