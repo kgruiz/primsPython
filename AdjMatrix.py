@@ -58,6 +58,15 @@ class AdjacencyMatrix:
 
         return numOutgoing
 
+    def __getattr__(self, name):
+
+        if name == "columns":
+            return self.matrix.columns
+
+        raise AttributeError(
+            f"'{self.__class__.__name__}' object has no attribute '{name}'"
+        )
+
     def GetEdge(
         self, source: Union[int, str, Vertex], destination: Union[int, str, Vertex]
     ) -> float:

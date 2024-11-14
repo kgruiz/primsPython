@@ -1,5 +1,7 @@
 from typing import List, Set, Tuple, Union
 
+from numpy import isinf
+
 from AdjMatrix import AdjacencyMatrix
 from Vertex import Vertex
 
@@ -26,45 +28,49 @@ def PrimsAlgorithm(
 
     allFound = False
 
-    while not allFound:
+    nonFound = [None]
+
+    while len(nonFound) > 0:
+
+        nonFound = [vertex for vertex in vertices if not vertex.found]
+
+        print(nonFound)
 
         minDistance = float("inf")
         minVertex = None
 
-        allFound = True
+        for vertex in nonFound:
 
-        for vertexNum, vertex in enumerate(vertices):
-
-            if vertex.minDistance < minDistance and not vertex.found:
+            if vertex.minDistance < minDistance:
 
                 minDistance = vertex.minDistance
                 minVertex = vertex
-                vertices[vertexNum].found = True
-
-                allFound = False
 
         if minVertex is not None:
+
+            vertices[vertices.index(minVertex)].found = True
 
             minVertexConnections = adjacencyMatrix[minVertex]
 
             for destinationName, weight in zip(
-                adjacencyMatrix.matrix.columns, minVertexConnections
+                adjacencyMatrix.columns, minVertexConnections
             ):
 
                 destination = vertices[vertices.index(Vertex(destinationName))]
 
-                distance = adjacencyMatrix[minVertex, destination]
+                if (
+                    weight < destination.minDistance
+                    and weight != 0
+                    and not isinf(weight)
+                    and not destination.found
+                ):
 
-                if distance < destination.minDistance:
-
-                    vertices[vertices.index(destination)].previous = minVertex
-                    vertices[vertices.index(destination)].minDistance = distance
+                    destination.minDistance = weight
+                    destination.previous = vertices[vertices.index(minVertex)]
 
     mstAdjancency = AdjacencyMatrix(vertices=vertices)
 
     for vertex in vertices:
-
-        print(f"Adding Edges")
 
         source = vertex.previous
         destination = vertex
@@ -73,10 +79,7 @@ def PrimsAlgorithm(
 
             continue
 
-        print(f"\n\nNOT CONTINUING\n\n")
-
         minDistance = vertex.minDistance
-        prevMinDistance = source.minDistance
 
         print(source)
 
