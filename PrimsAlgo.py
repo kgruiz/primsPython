@@ -26,13 +26,7 @@ def PrimsAlgorithm(
 
     allFound = False
 
-    i = 0
-
     while not allFound:
-
-        print(f"{i=}")
-
-        i += 1
 
         minDistance = float("inf")
         minVertex = None
@@ -40,8 +34,6 @@ def PrimsAlgorithm(
         allFound = True
 
         for vertexNum, vertex in enumerate(vertices):
-
-            print(f"{vertexNum=}")
 
             if vertex.minDistance < minDistance and not vertex.found:
 
@@ -53,47 +45,46 @@ def PrimsAlgorithm(
 
         if minVertex is not None:
 
-            j = 0
+            minVertexConnections = adjacencyMatrix[minVertex]
 
-            for edge in minVertex.edges:
+            for destinationName, weight in zip(
+                adjacencyMatrix.matrix.columns, minVertexConnections
+            ):
 
-                print(f"EDGE: Source: {minVertex} Destination: {edge[0]}")
-
-                # print(f"{j=}")
-
-                # j += 1
-
-                destination: Vertex = edge[0]
+                destination = vertices[vertices.index(Vertex(destinationName))]
 
                 distance = adjacencyMatrix[minVertex, destination]
 
                 if distance < destination.minDistance:
 
-                    print(f"Current: {destination} Previous: {minVertex}")
-
                     vertices[vertices.index(destination)].previous = minVertex
+                    vertices[vertices.index(destination)].minDistance = distance
 
-    blankVertices: List[Vertex] = []
+    mstAdjancency = AdjacencyMatrix(vertices=vertices)
 
     for vertex in vertices:
 
-        blankVertices.append(vertex.WithoutEdges())
-
-    mstAdjancency = AdjacencyMatrix(vertices=blankVertices)
-
-    for vertex in blankVertices:
+        print(f"Adding Edges")
 
         source = vertex.previous
         destination = vertex
-
-        print(source)
 
         if source is None:
 
             continue
 
+        print(f"\n\nNOT CONTINUING\n\n")
+
         minDistance = vertex.minDistance
         prevMinDistance = source.minDistance
+
+        print(source)
+
+        print(destination)
+
+        print(minDistance)
+
+        print("\n\n")
 
         mstAdjancency.AddEdge(
             source=source, destination=destination, weight=minDistance

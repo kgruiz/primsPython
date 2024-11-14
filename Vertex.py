@@ -9,6 +9,10 @@ class Vertex:
         self.minDistance: float = float("infinity")
         self.previous: Union["Vertex", None] = None
 
+    def __eq__(self, otherVertex: "Vertex"):
+
+        return self.label == otherVertex.label
+
     def __str__(self) -> str:
 
         return str(self.label)

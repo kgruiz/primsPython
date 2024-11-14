@@ -7,6 +7,7 @@ import networkx as nx
 import pandas as pd
 
 from AdjMatrix import AdjacencyMatrix
+from PrimsAlgo import PrimsAlgorithm
 from Vertex import Vertex
 
 
@@ -120,4 +121,8 @@ if __name__ == "__main__":
 
     print(f"Adjacency Matrix:\n{adjacencyMatrix}")
 
-    numUnconnected = adjacencyMatrix.NumUnconnectedNodes()
+    mstAdjacency = PrimsAlgorithm(adjacencyMatrix=adjacencyMatrix, vertices=vertices)
+
+    DrawGraph(adjacencyMatrix=mstAdjacency, vertices=vertices, saveName="zmst")
+
+    print(f"MST Adjacency Matrix:\n{mstAdjacency}")
