@@ -1,9 +1,13 @@
 import random
 import string
-from queue import Queue
 from typing import List, Set, Tuple, Union
 
+import matplotlib.pyplot as plt
+import networkx as nx
 import pandas as pd
+
+from AdjMatrix import AdjacencyMatrix
+from Vertex import Vertex
 
 
 def GetAlphabet(numVertices: int) -> list:
@@ -17,219 +21,99 @@ def GetAlphabet(numVertices: int) -> list:
     return list(string.ascii_lowercase[:numVertices])
 
 
-class Vertex:
+def DrawGraph(adjacencyMatrix: AdjacencyMatrix, graph: nx.Graph, saveName: str):
 
-    def __init__(self, label: int | str, edges: Set[Tuple["Vertex", float]] = None):
+    matrix = adjacencyMatrix.matrix
+    rowIndices = matrix.index.tolist()
+    colNames = matrix.columns.tolist()
 
-        self.label: int | str = label
-        self.found: bool = False
+    for rowName in rowIndices:
 
-        if edges is None:
+        for colName in colNames:
 
-            self.edges: Set[Vertex] = set()
+            weight = matrix.loc[rowName, colName]
 
-        else:
-            self.edges: Set[Vertex] = edges
-        self.minDistance: float = float("infinity")
-        self.previous: Vertex | None = None
+            if weight == float("infinity") or rowName == colName:
+                continue
 
-    def AddEdge(self, edge: Tuple["Vertex", float]) -> None:
+            elif not graph.has_edge(rowName, colName):
 
-        self.edges.add(edge)
+                graph.add_edge(rowName, colName, label=str(int(weight)))
 
-    def __str__(self) -> str:
+    pos = nx.spring_layout(graph, seed=141)
 
-        return str(self.label)
+    nx.draw(
+        graph,
+        pos,
+        with_labels=True,
+        node_color="lightblue",
+        font_weight="bold",
+        edge_color="gray",
+        node_size=500,
+    )
 
+    edgeLabels = nx.get_edge_attributes(graph, "label")
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edgeLabels)
 
-class AdjacencyMatrix:
-
-    def __init__(self, vertices: List[Vertex]):
-
-        self.numVertices: int = len(vertices)
-        self.matrix = pd.DataFrame(
-            float("infinity"),
-            index=[vertex.label for vertex in vertices],
-            columns=[vertex.label for vertex in vertices],
-            dtype=float,
-        )
-
-        for vertex in vertices:
-
-            self.matrix.loc[vertex.label, vertex.label] = 0.0
-
-        for vertex in vertices:
-
-            for edge in vertex.edges:
-
-                destination = edge[0]
-                weight = edge[1]
-
-                self.AddEdge(source=vertex, destination=destination, weight=weight)
-
-    def GetEdge(
-        self, source: Union[int, str, Vertex], destination: Union[int, str, Vertex]
-    ) -> float:
-
-        source = source.label if isinstance(source, Vertex) else source
-        destination = (
-            destination.label if isinstance(destination, Vertex) else destination
-        )
-
-        if not isinstance(source, (int, str)) or not isinstance(
-            destination, (int, str)
-        ):
-
-            raise ValueError(
-                "Source and destination labels must be integers or strings."
-            )
-
-        return self.matrix.loc[source, destination]
-
-    def AddEdge(
-        self,
-        source: Union[int, str, Vertex],
-        destination: Union[int, str, Vertex],
-        weight: float,
-    ) -> None:
-
-        if source == destination:
-
-            return
-
-        source = source.label if isinstance(source, Vertex) else source
-        destination = (
-            destination.label if isinstance(destination, Vertex) else destination
-        )
-
-        if not isinstance(source, (int, str)) or not isinstance(
-            destination, (int, str)
-        ):
-
-            raise ValueError(
-                "Source and destination labels must be integers or strings."
-            )
-
-        self.matrix.loc[source, destination] = weight
-        self.matrix.loc[destination, source] = weight
-
-    def __getitem__(
-        self,
-        indices: Union[
-            int,
-            str,
-            List[Union[int, str, Vertex]],
-            Tuple[Union[int, str, Vertex], Union[int, str, Vertex]],
-            Vertex,
-        ],
-    ):
-
-        if isinstance(indices, (list, tuple)) and len(indices) == 2:
-
-            fromIndex, toIndex = indices
-
-            fromIndex = fromIndex.label if isinstance(fromIndex, Vertex) else fromIndex
-            toIndex = toIndex.label if isinstance(toIndex, Vertex) else toIndex
-
-            if not isinstance(fromIndex, (int, str)) or not isinstance(
-                toIndex, (int, str)
-            ):
-
-                raise ValueError("Vertex labels must be integers or strings.")
-
-            return self.matrix.loc[fromIndex, toIndex]
-
-        elif isinstance(indices, (int, str, Vertex)):
-
-            indices = indices.label if isinstance(indices, Vertex) else indices
-
-            if indices not in self.matrix.index:
-
-                raise IndexError("Vertex label out of range.")
-
-            return self.matrix.loc[indices]
-
-        else:
-
-            raise TypeError(
-                "Index must be an integer, string, Vertex object, or a list or tuple of two vertex labels."
-            )
-
-    def __setitem__(
-        self,
-        indices: Union[
-            List[Union[int, str, Vertex]],
-            Tuple[Union[int, str, Vertex], Union[int, str, Vertex]],
-        ],
-        value: int,
-    ) -> None:
-
-        if isinstance(indices, (list, tuple)) and len(indices) == 2:
-
-            fromIndex, toIndex = indices
-
-            fromIndex = fromIndex.label if isinstance(fromIndex, Vertex) else fromIndex
-            toIndex = toIndex.label if isinstance(toIndex, Vertex) else toIndex
-
-            if not isinstance(fromIndex, (int, str)) or not isinstance(
-                toIndex, (int, str)
-            ):
-
-                raise ValueError("Vertex labels must be integers or strings.")
-
-            self.matrix[fromIndex, toIndex] = value
-
-        else:
-
-            raise TypeError("Index must be a list or tuple of two vertex labels.")
-
-    def __str__(self):
-
-        return self.matrix.to_string()
-
-
-def PrimsAlgorithm(
-    adjacencyMatrix: AdjacencyMatrix, vertices: List[Vertex]
-) -> List[Tuple[Vertex, Vertex, float]]:
-
-    pass
+    plt.savefig(f"{saveName}.png", format="png")
+    plt.clf()
 
 
 if __name__ == "__main__":
 
-    numVertices = 10
+    random.seed(141)
 
-    filledPercent = 0.8
+    numVertices = 10
+    filledPercent = 0.3
 
     labels = GetAlphabet(numVertices)
-
     vertices = [Vertex(label) for label in labels[:numVertices]]
 
-    weightsList = [
-        float(int(random.random() * random.randint(1, 1000) * 100) / 100)
-        for _ in range(int((numVertices**2) * filledPercent))
+    numPossibleEdges = numVertices * (numVertices - 1) // 2
+    numEdges = int(numPossibleEdges * filledPercent)
+
+    possiblePairs = [
+        (vertices[i], vertices[j])
+        for i in range(numVertices)
+        for j in range(i + 1, numVertices)
     ]
 
-    weights = Queue()
+    random.shuffle(possiblePairs)
 
-    for item in weightsList:
-
-        weights.put(item)
-
-    while not weights.empty():
-
-        source = random.choice(vertices)
-
-        destination = random.choice(vertices)
-
-        while source == destination:
-
-            destination = random.choice(vertices)
-
-        weight = weights.get()
-
-        vertices[vertices.index(source)].AddEdge((destination, weight))
+    selectedPairs = possiblePairs[:numEdges]
 
     adjacencyMatrix = AdjacencyMatrix(vertices)
 
+    for pair in selectedPairs:
+
+        source, destination = pair
+
+        weight = int(round(random.uniform(1, 1000), 2))
+
+        adjacencyMatrix.AddEdge(source=source, destination=destination, weight=weight)
+
+    if adjacencyMatrix.NumUnconnectedNodes() > 0:
+
+        for vertex in vertices:
+
+            if adjacencyMatrix.NumOutgoingEdges(vertex=vertex) == 0:
+
+                destination = random.choice([v for v in vertices if v != vertex])
+
+                weight = int(round(random.uniform(1, 1000), 2))
+
+                adjacencyMatrix.AddEdge(
+                    source=vertex, destination=destination, weight=weight
+                )
+
+    graph = nx.Graph()
+
+    for vertex in vertices:
+
+        graph.add_node(vertex.label)
+
+    DrawGraph(adjacencyMatrix=adjacencyMatrix, graph=graph, saveName="zoriginal")
+
     print(f"Adjacency Matrix:\n{adjacencyMatrix}")
+
+    numUnconnected = adjacencyMatrix.NumUnconnectedNodes()
