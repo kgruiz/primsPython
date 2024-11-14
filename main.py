@@ -21,50 +21,7 @@ def GetAlphabet(numVertices: int) -> list:
     return list(string.ascii_lowercase[:numVertices])
 
 
-def DrawGraph(adjacencyMatrix: AdjacencyMatrix, graph: nx.Graph, saveName: str):
-
-    matrix = adjacencyMatrix.matrix
-    rowIndices = matrix.index.tolist()
-    colNames = matrix.columns.tolist()
-
-    for rowName in rowIndices:
-
-        for colName in colNames:
-
-            weight = matrix.loc[rowName, colName]
-
-            if weight == float("infinity") or rowName == colName:
-                continue
-
-            elif not graph.has_edge(rowName, colName):
-
-                graph.add_edge(rowName, colName, label=str(int(weight)))
-
-    pos = nx.spring_layout(graph, seed=141)
-
-    nx.draw(
-        graph,
-        pos,
-        with_labels=True,
-        node_color="lightblue",
-        font_weight="bold",
-        edge_color="gray",
-        node_size=500,
-    )
-
-    edgeLabels = nx.get_edge_attributes(graph, "label")
-    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edgeLabels)
-
-    plt.savefig(f"{saveName}.png", format="png")
-    plt.clf()
-
-
-if __name__ == "__main__":
-
-    random.seed(141)
-
-    numVertices = 10
-    filledPercent = 0.3
+def RandomGraph(numVertices: int, filledPercent: float):
 
     labels = GetAlphabet(numVertices)
     vertices = [Vertex(label) for label in labels[:numVertices]]
@@ -106,13 +63,60 @@ if __name__ == "__main__":
                     source=vertex, destination=destination, weight=weight
                 )
 
+    return adjacencyMatrix, vertices
+
+
+def DrawGraph(adjacencyMatrix: AdjacencyMatrix, vertices: List[Vertex], saveName: str):
+
+    matrix = adjacencyMatrix.matrix
+    rowIndices = matrix.index.tolist()
+    colNames = matrix.columns.tolist()
+
     graph = nx.Graph()
 
     for vertex in vertices:
 
         graph.add_node(vertex.label)
 
-    DrawGraph(adjacencyMatrix=adjacencyMatrix, graph=graph, saveName="zoriginal")
+    for rowName in rowIndices:
+
+        for colName in colNames:
+
+            weight = matrix.loc[rowName, colName]
+
+            if weight == float("infinity") or rowName == colName:
+                continue
+
+            elif not graph.has_edge(rowName, colName):
+
+                graph.add_edge(rowName, colName, label=str(int(weight)))
+
+    pos = nx.spring_layout(graph, seed=141)
+
+    nx.draw(
+        graph,
+        pos,
+        with_labels=True,
+        node_color="lightblue",
+        font_weight="bold",
+        edge_color="gray",
+        node_size=500,
+    )
+
+    edgeLabels = nx.get_edge_attributes(graph, "label")
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edgeLabels)
+
+    plt.savefig(f"{saveName}.png", format="png")
+    plt.clf()
+
+
+if __name__ == "__main__":
+
+    random.seed(141)
+
+    adjacencyMatrix, vertices = RandomGraph(numVertices=10, filledPercent=0.3)
+
+    DrawGraph(adjacencyMatrix=adjacencyMatrix, vertices=vertices, saveName="zoriginal")
 
     print(f"Adjacency Matrix:\n{adjacencyMatrix}")
 
