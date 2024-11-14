@@ -67,6 +67,18 @@ class AdjacencyMatrix:
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
         )
 
+    def TotalWeight(self) -> int | float:
+
+        weightSum = 0
+
+        for weight in self.matrix.values.flatten():
+
+            if not np.isinf(weight):
+
+                weightSum += weight
+
+        return weightSum / 2
+
     def GetEdge(
         self, source: Union[int, str, Vertex], destination: Union[int, str, Vertex]
     ) -> float:

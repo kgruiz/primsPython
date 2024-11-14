@@ -22,7 +22,9 @@ def GetAlphabet(numVertices: int) -> list:
     return list(string.ascii_lowercase[:numVertices])
 
 
-def RandomGraph(numVertices: int, filledPercent: float):
+def RandomGraph(
+    numVertices: int, filledPercent: float
+) -> Tuple[AdjacencyMatrix, List[Vertex]]:
 
     labels = GetAlphabet(numVertices)
     vertices = [Vertex(label) for label in labels[:numVertices]]
@@ -121,8 +123,14 @@ if __name__ == "__main__":
 
     print(f"Adjacency Matrix:\n{adjacencyMatrix}")
 
-    mstAdjacency = PrimsAlgorithm(adjacencyMatrix=adjacencyMatrix, vertices=vertices)
+    print(f"Total Weight Original: {adjacencyMatrix.TotalWeight()}")
+
+    mstAdjacency: AdjacencyMatrix = PrimsAlgorithm(
+        adjacencyMatrix=adjacencyMatrix, vertices=vertices
+    )
 
     DrawGraph(adjacencyMatrix=mstAdjacency, vertices=vertices, saveName="zmst")
 
     print(f"MST Adjacency Matrix:\n{mstAdjacency}")
+
+    print(f"Total Weight MST: {mstAdjacency.TotalWeight()}")

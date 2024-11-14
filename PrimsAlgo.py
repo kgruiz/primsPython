@@ -34,8 +34,6 @@ def PrimsAlgorithm(
 
         nonFound = [vertex for vertex in vertices if not vertex.found]
 
-        print(nonFound)
-
         minDistance = float("inf")
         minVertex = None
 
@@ -80,14 +78,6 @@ def PrimsAlgorithm(
             continue
 
         minDistance = vertex.minDistance
-
-        print(source)
-
-        print(destination)
-
-        print(minDistance)
-
-        print("\n\n")
 
         mstAdjancency.AddEdge(
             source=source, destination=destination, weight=minDistance
